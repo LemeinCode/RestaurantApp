@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
 
 function Register() {
   const [name, setName] = useState("");
@@ -25,6 +26,7 @@ function Register() {
 
   return (
     <div>
+        <Navbar /> {/* Include Navbar here */}
       <h2>Register</h2>
       <form onSubmit={handleRegister}>
         <input

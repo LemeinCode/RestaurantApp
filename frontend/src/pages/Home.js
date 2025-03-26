@@ -1,10 +1,17 @@
 import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
 
 function Home() {
   return (
     <div>
-      <h1>Welcome to Our App</h1>
-      <Link to="/login">Login</Link> | <Link to="/register">Register</Link>
+      <Navbar />
+      <div className="home-container">
+        <h1>Welcome to Jikoni</h1>
+        <p>Experience delicious meals, freshly prepared just for you!</p>
+        <Link to="/menu" className="menu-button">
+          View Our Menu
+        </Link>
+      </div>
     </div>
   );
 }
