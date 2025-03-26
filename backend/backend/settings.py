@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'accounts',  
     'backend',
     'corsheaders',
+    'rest_framework',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -137,4 +139,20 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# Enable session storage in cookies
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+# Expire session when browser closes (Optional)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Time before session expires (Optional)
+SESSION_COOKIE_AGE = 86400  # 1 day
+
