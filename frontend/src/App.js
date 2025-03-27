@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Menu from "./pages/Menu"; 
+import Orders from "./pages/Orders";
 import ProtectedRoute from "./ProtectedRoute";
 
 const App = () => {
@@ -18,6 +19,7 @@ const App = () => {
         {/* Protected Route Wrapper */}
         <Route element={<ProtectedRoute />}>
           <Route path="/menu" element={<Menu />} />
+          <Route path="/orders" element={<Orders />} />
         </Route>
       </Routes>
     </Router>
