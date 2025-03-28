@@ -3,8 +3,8 @@ import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedRoute = ({ requiresAdmin = false }) => {
   const token = localStorage.getItem("token");
-  const userRole = localStorage.getItem("role"); // Get role from localStorage
-
+  const userRole = localStorage.getItem("role"); 
+  
   console.log("ProtectedRoute - Token:", token);
   console.log("ProtectedRoute - Role:", userRole);
 

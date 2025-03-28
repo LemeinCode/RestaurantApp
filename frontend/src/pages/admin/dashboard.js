@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Card, Button, Row, Col, Table } from "react-bootstrap";
-import Navbar from "./Navbar";
+import Navbar from "../Navbar";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
