@@ -8,30 +8,39 @@ import Menu from "./pages/Menu";
 import Dashboard from "./pages/admin/dashboard"; 
 import Orders from "./pages/Orders";
 import SendEmails from "./pages/Sendemails";
+import ManageOrders from "./pages/admin/manageorders";
+import ManageUsers from "./pages/admin/manageusers";
+import Sidebar from "./pages/admin/sidebar";
 import ProtectedRoute from "./ProtectedRoute";
 
 const App = () => {
   return (
     <Router>
-    <Routes>
-    <Route path="/" element={<Home />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-    {/* Protected routes for logged-in users */}
-    <Route element={<ProtectedRoute />}>
-      <Route path="/menu" element={<Menu />} />
-      <Route path="/orders" element={<Orders />} />
-      <Route path="/sendemails" element={<SendEmails />} />
-    </Route>
+        {/* Protected routes for logged-in users */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/sendemails" element={<SendEmails />} />
+          <Route path="/admin/sidebar" element={<Sidebar />} />
+        </Route>
 
-    {/* Admin protected route */}
-    <Route element={<ProtectedRoute requiresAdmin={true} />}>
-      <Route path="/dashboard" element={<Dashboard />} />
-    </Route>
-  </Routes>
-  </Router>
+        {/* Admin and Manager protected routes */}
+        <Route element={<ProtectedRoute requiresAdmin={true} />}>
+          <Route path="/admin/manageorders" element={<ManageOrders />} />
+          <Route path="/admin/manageusers" element={<ManageUsers />} />
+        </Route>
 
+        {/* Admin only route (Managers cannot access Dashboard) */}
+        <Route element={<ProtectedRoute requiresAdmin={true} requiresManager={true} />}>
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 };
 

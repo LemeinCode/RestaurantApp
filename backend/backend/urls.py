@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from accounts.views import (
     register_user, login_user, get_logged_in_user, 
-    place_order, get_all_orders
+    place_order, get_all_orders, get_dashboard_stats
 )
 
 urlpatterns = [
@@ -13,4 +13,5 @@ urlpatterns = [
     path('user/', get_logged_in_user, name='get_logged_in_user'),
     path("place-order/", place_order, name="place_order"),
     path("admin/orders/", get_all_orders, name="get_all_orders"),  # Admin access
+    path("admin/dashboard-stats/", get_dashboard_stats, name="get_dashboard_stats"),  # New endpoint
 ]
