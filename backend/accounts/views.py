@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser, Order
-from .serializers import UserSerializer, OrderSerializer
+from .models import CustomUser, Order, MenuItem
+from .serializers import UserSerializer, OrderSerializer, MenuItemSerializer
+from rest_framework import status
 import json
 from decimal import Decimal
 from collections import defaultdict
@@ -26,28 +27,6 @@ def register_user(request):
         role='customer'
     )
     return Response({"message": "User registered successfully"}, status=201)
-
-# @api_view(['POST'])
-# def login_user(request):
-    data = request.data
-    email = data.get('email')
-    password = data.get('password')
-
-    try:
-        user = CustomUser.objects.get(email=email)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=404)
-
-    if not user.check_password(password):
-        return Response({"error": "Invalid credentials"}, status=400)
-
-    refresh = RefreshToken.for_user(user)
-    
-    return Response({
-        "token": str(refresh.access_token),
-        "refresh": str(refresh),
-        "message": "Login successful"
-    }, status=200)
 
 @api_view(['POST'])
 def login_user(request):
@@ -71,7 +50,6 @@ def login_user(request):
         "role": user.role,  
         "message": "Login successful"
     }, status=200)
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -117,58 +95,36 @@ def place_order(request):
         "orders": OrderSerializer(order_list, many=True).data
     }, status=201)
 
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_all_orders(request):
     orders = Order.objects.all()
 
     if not orders.exists():
-        print("❌ No orders found in the database.")  # Debugging log
-        return Response([], status=200)  
+        return Response([], status=200)
 
     serializer = OrderSerializer(orders, many=True)
-    print("✅ Orders found:", serializer.data)  # Debugging log
-
     return Response(serializer.data, status=200)
-
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Decimal):
-            return float(obj)
-        return super(DecimalEncoder, self).default(obj)
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_dashboard_stats(request):
-    # Check if user is admin or manager (optional)
     user = request.user
     if user.role not in ['admin', 'manager']:
-        # For development/testing, we'll allow access, but in production you might want to restrict
-        pass
-        # return Response({"error": "You don't have permission to access this data"}, status=403)
+        return Response({"error": "You don't have permission to access this data"}, status=403)
     
-    # Get all orders for statistics
     orders = Order.objects.all()
     
-    # Calculate total sales
     total_sales = orders.aggregate(total=Sum('total_price'))['total'] or 0
-    
-    # Count unique users who placed orders
     unique_users = orders.values('user').distinct().count()
-    
-    # Count total orders
     total_orders = orders.count()
     
-    # Get daily sales data for the graph
-    # First, get orders grouped by date with sum of total_price
     daily_sales_query = orders.annotate(
         date=TruncDate('created_at')
     ).values('date').annotate(
         amount=Sum('total_price')
     ).order_by('date')
     
-    # Convert to the format needed for the frontend chart
     daily_sales = []
     for entry in daily_sales_query:
         daily_sales.append({
@@ -176,7 +132,6 @@ def get_dashboard_stats(request):
             'amount': float(entry['amount'])
         })
     
-    # If there's no data, generate sample data for the last 7 days
     if not daily_sales:
         today = datetime.now().date()
         for i in range(7):
@@ -185,9 +140,8 @@ def get_dashboard_stats(request):
                 'date': day.strftime('%Y-%m-%d'),
                 'amount': 0
             })
-        daily_sales.reverse()  # Put in ascending order
+        daily_sales.reverse()
     
-    # Build response
     response_data = {
         'totalSales': float(total_sales),
         'activeUsers': unique_users,
@@ -196,3 +150,19 @@ def get_dashboard_stats(request):
     }
     
     return Response(response_data)
+
+@api_view(['GET'])
+def menu_list(request):
+    items = MenuItem.objects.all()
+    serializer = MenuItemSerializer(items, many=True)
+    return Response(serializer.data)
+
+@api_view(["POST"])
+def add_menu_item(request):
+    serializer = MenuItemSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

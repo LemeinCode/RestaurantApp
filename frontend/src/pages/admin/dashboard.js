@@ -151,12 +151,12 @@ const AdminDashboard = () => {
                 <h4 className="text-center mb-4">Admin Panel</h4>
                 <Nav className="flex-column">
                   <Nav.Item>
-                    <Nav.Link href="#" className="text-white" onClick={() => navigate("/orders")}>
+                    <Nav.Link href="#" className="text-white" onClick={() => navigate("/admin/manageorders")}>
                       Manage Orders
                     </Nav.Link>
                   </Nav.Item>
                   <Nav.Item>
-                    <Nav.Link href="#" className="text-white" onClick={() => navigate("/users")}>
+                    <Nav.Link href="#" className="text-white" onClick={() => navigate("/admin/manageusers")}>
                       Manage Users
                     </Nav.Link>
                   </Nav.Item>
