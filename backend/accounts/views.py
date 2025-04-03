@@ -258,3 +258,24 @@ def top_three_meals(request):
     # Returning the top three meals in the response
     return Response(formatted_meals)
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_purchase_stats(request):
+    user = request.user
+    if user.role not in ['admin', 'manager']:
+        return Response({"error": "Unauthorized"}, status=403)
+    
+    # Get users with their order counts
+    user_stats = (
+        Order.objects.values('user__id', 'user__name', 'user__email')
+        .annotate(order_count=Count('id'))
+    )
+    # Count users with 1 order vs multiple orders
+    single_purchase = sum(1 for user in user_stats if user['order_count'] == 1)
+    multiple_purchase = sum(1 for user in user_stats if user['order_count'] > 1)
+    
+    return Response({
+        'single_purchase': single_purchase,
+        'multiple_purchase': multiple_purchase,
+        'user_details': list(user_stats)
+    })

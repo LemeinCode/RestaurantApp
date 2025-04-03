@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Card, Row, Col, Container, Nav } from "react-bootstrap";
 import Navbar from "../Navbar";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,Cell, BarChart, Bar } from 'recharts';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -237,24 +236,40 @@ const AdminDashboard = () => {
                 </Card>
 
                 {/* Top Meals Bar Chart */}
-                <Card className="shadow-sm mb-4">
-                  <Card.Body>
-                    <h3 className="mb-4">Top 3 Meals</h3>
-                    <ResponsiveContainer width="100%" height={400}>
-                      <BarChart
-                        data={topMeals}  // Ensure this is correctly set to the topMeals state
-                        margin={{ top: 5, right: 30, left: 20, bottom: 50 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="mealName" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="salesCount" fill="#82ca9d" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </Card.Body>
-                </Card>
+                  <Card className="shadow-sm mb-4">
+                    <Card.Body>
+                      <h3 className="mb-4">Top 3 Meals</h3>
+                      <ResponsiveContainer width="100%" height={400}>
+                        <BarChart
+                          data={topMeals}
+                          margin={{ top: 5, right: 30, left: 20, bottom: 50 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="mealName" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar 
+                            dataKey="salesCount" 
+                            name="Sales Count"
+                            label={{ position: 'top' }}
+                            barSize={60}
+                          >
+                            {topMeals.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={
+                                  index === 0 ? '#8884d8' :  // First meal - purple
+                                  index === 1 ? '#82ca9d' :  // Second meal - green
+                                  '#ff8042'                 // Third meal - orange
+                                } 
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </Card.Body>
+                  </Card>
               </div>
             </Col>
           </Row>
