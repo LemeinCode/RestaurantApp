@@ -10,11 +10,11 @@ const ManageOrders = () => {
     name: "",
     description: "",
     price: "",
-    category: "meat", // Default category changed to "meat"
+    category: "meat",
     available: true,
     inventory: 0,
   });
-  const [isEditing, setIsEditing] = useState(false); // Track whether we are editing an item
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     fetchMenuItems();
@@ -41,7 +41,7 @@ const ManageOrders = () => {
     e.preventDefault();
     if (isEditing) {
       try {
-        const response = await axios.put(`http://localhost:8000/menu/edit/${newItem.id}/`, newItem); // Edit API call
+        const response = await axios.put(`http://localhost:8000/menu/edit/${newItem.id}/`, newItem);
         setMenuItems(menuItems.map(item => item.id === newItem.id ? response.data : item));
         setIsEditing(false);
       } catch (error) {
@@ -55,7 +55,7 @@ const ManageOrders = () => {
         console.error("Error adding item:", error);
       }
     }
-    setNewItem({ name: "", description: "", price: "", category: "meat", available: true, inventory: 0 });
+    setNewItem({ id: "", name: "", description: "", price: "", category: "meat", available: true, inventory: 0 });
   };
 
   const handleDelete = async (id) => {
@@ -68,8 +68,8 @@ const ManageOrders = () => {
   };
 
   const handleEdit = (item) => {
-    setNewItem(item); // Set the form to the values of the item being edited
-    setIsEditing(true); // Set editing mode
+    setNewItem(item);
+    setIsEditing(true);
   };
 
   return (
@@ -96,17 +96,13 @@ const ManageOrders = () => {
             </Form.Group>
 
             <Form.Group controlId="category">
-                <Form.Label>Category</Form.Label>
-                <Form.Control 
-                    as="select" 
-                    name="category" 
-                    value={newItem.category} 
-                    onChange={handleChange}
-                >
-                    <option value="meat">Meat</option>
-                    <option value="vegetables">Vegetables</option>
-                    <option value="beverage">Beverage</option>
-                </Form.Control>
+              <Form.Label>Category</Form.Label>
+              <Form.Control as="select" name="category" value={newItem.category} onChange={handleChange}>
+                <option value="meat">Meat</option>
+                <option value="carbs">Carbohydrates</option>
+                <option value="vegetables">Vegetables</option>
+                <option value="beverage">Beverage</option>
+              </Form.Control>
             </Form.Group>
 
             <Form.Group controlId="inventory">
@@ -135,21 +131,27 @@ const ManageOrders = () => {
               </tr>
             </thead>
             <tbody>
-              {menuItems.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
-                  <td>{item.description}</td>
-                  <td>Ksh. {item.price}</td>
-                  <td>{item.category}</td>
-                  <td>{item.available ? "✅" : "❌"}</td>
-                  <td>{item.inventory}</td>
-                  <td>
-                    <Button variant="danger" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
-                    <Button variant="warning" size="sm" onClick={() => handleEdit(item)} className="ms-2">Edit</Button> {/* Edit button */}
-                  </td>
+              {menuItems.length > 0 ? (
+                menuItems.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    <td>{item.name}</td>
+                    <td>{item.description}</td>
+                    <td>Ksh. {item.price}</td>
+                    <td>{item.category}</td>
+                    <td>{item.available ? "✅" : "❌"}</td>
+                    <td>{item.inventory}</td>
+                    <td>
+                      <Button variant="danger" size="sm" onClick={() => handleDelete(item.id)}>Delete</Button>
+                      <Button variant="warning" size="sm" onClick={() => handleEdit(item)} className="ms-2">Edit</Button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="text-center">No menu items available</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </Table>
         </Row>

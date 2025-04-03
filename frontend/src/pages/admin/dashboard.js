@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Card, Button, Row, Col, Table, Container, Nav } from "react-bootstrap";
+import { Card, Row, Col, Container, Nav } from "react-bootstrap";
 import Navbar from "../Navbar";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar } from 'recharts';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [topMeals, setTopMeals] = useState([]);  // New state for top meals
   const [showSidebar, setShowSidebar] = useState(true);
   const [dashboardStats, setDashboardStats] = useState({
     totalSales: 0,
@@ -27,6 +29,7 @@ const AdminDashboard = () => {
     fetchUser(token);
     fetchOrders(token);
     fetchDashboardStats(token);
+    fetchTopMeals(token);  // Fetch top meals data
   }, [navigate]);
 
   const fetchUser = async (token) => {
@@ -36,7 +39,6 @@ const AdminDashboard = () => {
       });
       const userData = response.data.user;
       setUser(userData);
-      // 🔹 TEMPORARY: Allow everyone to access Admin Dashboard for testing
       setIsAuthorized(true);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -50,10 +52,9 @@ const AdminDashboard = () => {
       const response = await axios.get("http://localhost:8000/admin/orders/", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("📢 Orders Response:", response.data); // Debugging log
       setOrders(response.data);
     } catch (error) {
-      console.error("❌ Error fetching orders:", error);
+      console.error("Error fetching orders:", error);
     }
   };
 
@@ -62,11 +63,9 @@ const AdminDashboard = () => {
       const response = await axios.get("http://localhost:8000/admin/dashboard-stats/", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("📊 Dashboard Stats:", response.data); // Debugging log
       setDashboardStats(response.data);
     } catch (error) {
-      console.error("❌ Error fetching dashboard stats:", error);
-      // Set sample data if API fails
+      console.error("Error fetching dashboard stats:", error);
       setDashboardStats({
         totalSales: calculateTotalSales(orders),
         activeUsers: new Set(orders.map(order => order.user_name)).size,
@@ -76,27 +75,22 @@ const AdminDashboard = () => {
     }
   };
 
-  // Fallback calculation if API fails
+  const fetchTopMeals = async (token) => {
+    try {
+      const response = await axios.get("http://localhost:8000/admin/top-three-meals/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("Top meals data:", response.data);  // Check if the data is correct
+      setTopMeals(response.data);
+    } catch (error) {
+      console.error("Error fetching top meals:", error);
+    }
+  };
+  
+  
   const calculateTotalSales = (ordersList) => {
     return ordersList.reduce((sum, order) => sum + parseFloat(order.total_price), 0).toFixed(2);
   };
-
-  // const generateDailySales = (ordersList) => {
-  //   const salesByDate = {};
-    
-  //   ordersList.forEach(order => {
-  //     const date = new Date(order.created_at).toLocaleDateString();
-  //     if (!salesByDate[date]) {
-  //       salesByDate[date] = 0;
-  //     }
-  //     salesByDate[date] += parseFloat(order.total_price);
-  //   });
-    
-  //   return Object.entries(salesByDate).map(([date, amount]) => ({
-  //     date,
-  //     amount: parseFloat(amount.toFixed(2))
-  //   }));
-  // };
 
   const generateDailySales = (ordersList) => {
     let minDate, maxDate;
@@ -127,7 +121,6 @@ const AdminDashboard = () => {
       amount: parseFloat(amount.toFixed(2))
     }));
   };
-  
 
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
@@ -223,74 +216,43 @@ const AdminDashboard = () => {
                   <Card.Body>
                     <h3 className="mb-4">Daily Sales Trend</h3>
                     <ResponsiveContainer width="100%" height={400}>
-                      {
-                        <BarChart 
-                          data={dashboardStats.dailySales || []}
-                          margin={{ top: 5, right: 30, left: 20, bottom: 70 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis 
-                            dataKey="date" 
-                            angle={-45} 
-                            textAnchor="end" 
-                            height={80}
-                          />
-                          <YAxis label={{ value: 'Sales (KES)', angle: -90, position: 'insideLeft' , dx: -20 }} />
-                          <Tooltip formatter={(value) => [`$${value}`, 'Sales']} />
-                          <Legend />
-                          <Bar 
-                            dataKey="amount" 
-                            name="Daily Sales" 
-                            fill="#8884d8"
-                          />
-                        </BarChart>
-
-                      }
-
+                      <LineChart
+                        data={dashboardStats.dailySales || []}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 70 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="date" 
+                          angle={-45} 
+                          textAnchor="end" 
+                          height={80}
+                        />
+                        <YAxis label={{ value: 'Sales (KES)', angle: -90, position: 'insideLeft' , dx: -20 }} />
+                        <Tooltip formatter={(value) => [`KES ${value}`, 'Sales']} />
+                        <Legend />
+                        <Line type="monotone" dataKey="amount" stroke="#8884d8" />
+                      </LineChart>
                     </ResponsiveContainer>
                   </Card.Body>
                 </Card>
-                
-                {/* Recent Orders Table */}
-                <Card className="shadow-sm">
+
+                {/* Top Meals Bar Chart */}
+                <Card className="shadow-sm mb-4">
                   <Card.Body>
-                    <h3 className="mb-4">Recent Orders</h3>
-                    <Table striped bordered hover responsive>
-                      <thead>
-                        <tr>
-                          <th>Order ID</th>
-                          <th>Customer</th>
-                          <th>Meal</th>
-                          <th>Quantity</th>
-                          <th>Total</th>
-                          <th>Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {orders.slice(0, 5).map((order) => (
-                          <tr key={order.id}>
-                            <td>{order.id}</td>
-                            <td>{order.user_name}</td>
-                            <td>{order.meal_name}</td>
-                            <td>{order.quantity}</td>
-                            <td>KES {parseFloat(order.total_price).toFixed(2)}</td>
-                            <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                          </tr>
-                        ))}
-                        {orders.length === 0 && (
-                          <tr>
-                            <td colSpan={6} className="text-center">No orders found</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </Table>
-                    {orders.length > 5 && (
-                      <div className="text-center mt-3">
-                        <Button variant="primary" onClick={() => navigate("/orders")}>
-                          View All Orders
-                        </Button>
-                      </div>
-                    )}
+                    <h3 className="mb-4">Top 3 Meals</h3>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <BarChart
+                        data={topMeals}  // Ensure this is correctly set to the topMeals state
+                        margin={{ top: 5, right: 30, left: 20, bottom: 50 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="mealName" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="salesCount" fill="#82ca9d" />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </Card.Body>
                 </Card>
               </div>
