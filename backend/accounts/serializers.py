@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, CustomUser, MenuItem
+from .models import Order, CustomUser, MenuItem, CustomerFeedback
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,4 +19,8 @@ class MenuItemSerializer(serializers.ModelSerializer):
         model = MenuItem
         fields = '__all__'
 
-
+class CustomerFeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomerFeedback
+        fields = '__all__'
+        read_only_fields = ('created_at', 'updated_at')

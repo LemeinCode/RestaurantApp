@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from accounts.views import (
     register_user, login_user, get_logged_in_user, 
     place_order, get_all_orders, get_dashboard_stats, menu_list, add_menu_item,
-    update_menu_item, top_three_meals, user_purchase_stats  
+    update_menu_item, top_three_meals, user_purchase_stats, submit_feedback, get_all_feedback  
 )
 
 urlpatterns = [
@@ -20,4 +20,6 @@ urlpatterns = [
     path('menu/edit/<int:item_id>/', update_menu_item, name='update-menu-item'),
     path('admin/top-three-meals/', top_three_meals, name='top-three-meals'),
     path('admin/user-purchase-stats/', user_purchase_stats, name='user-purchase-stats'),
+    path('feedback/', submit_feedback, name='submit_feedback'),
+     path('admin/feedback/', get_all_feedback, name='get_all_feedback'),
 ]

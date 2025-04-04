@@ -6,12 +6,13 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser, Order, MenuItem
-from .serializers import UserSerializer, OrderSerializer, MenuItemSerializer
+from .serializers import UserSerializer, OrderSerializer, MenuItemSerializer,  CustomerFeedbackSerializer
 from rest_framework import status
 import json
 from decimal import Decimal
 from collections import defaultdict
 from datetime import datetime, timedelta
+from .models import CustomerFeedback
 
 @api_view(['POST'])
 def register_user(request):
@@ -278,4 +279,36 @@ def user_purchase_stats(request):
         'single_purchase': single_purchase,
         'multiple_purchase': multiple_purchase,
         'user_details': list(user_stats)
+    })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def submit_feedback(request):
+    try:
+        serializer = CustomerFeedbackSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response({
+                "message": "Thank you for your feedback!",
+                "data": serializer.data
+            }, status=201)
+        return Response({
+            "message": "Validation error",
+            "errors": serializer.errors
+        }, status=400)
+    except Exception as e:
+        return Response({
+            "message": "An error occurred",
+            "error": str(e)
+        }, status=500)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # Only admins can access
+def get_all_feedback(request):
+    feedbacks = CustomerFeedback.objects.all().order_by('-created_at')
+    serializer = CustomerFeedbackSerializer(feedbacks, many=True)
+    return Response({
+        'count': feedbacks.count(),
+        'results': serializer.data
     })

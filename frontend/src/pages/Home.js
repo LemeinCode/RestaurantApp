@@ -34,13 +34,16 @@ function Home() {
       <Navbar isLoggedIn={isLoggedIn} />
       <Container className="text-center mt-5">
         <h1 className="display-4 mb-4">Welcome to Jikoni</h1>
-
+        
         {isLoggedIn ? (
           <>
             <h2>Hi {user ? user.name : "Guest"}!</h2>
             <p className="lead mb-4">Explore our menu and place your order now!</p>
             <Link to="/menu">
               <Button variant="primary" size="lg">View Our Menu</Button>
+            </Link>
+            <Link to="/feedback">
+              <Button variant="warning" size="lg">Feedback</Button>
             </Link>
           </>
         ) : (

@@ -19,10 +19,13 @@ const Sidebar = () => {
               <Nav.Link as={Link} to="/admin/manageusers" className="text-white">
                 Manage Users
               </Nav.Link>
+              
             </Nav.Item>
+
             <Nav.Item>
-              <Nav.Link as={Link} to="/admin/email-campaigns" className="text-white">
-                Email Campaigns
+            
+              <Nav.Link as={Link} to="/admin/customerfeedback" className="text-white">
+                Customer Feedback
               </Nav.Link>
             </Nav.Item>
           </Nav>

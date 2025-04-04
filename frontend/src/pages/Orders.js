@@ -38,8 +38,8 @@ const Orders = () => {
           </Table>
           <h4 className="text-center mt-3">Grand Total: Ksh. {total}</h4>
           <div className="text-center">
-            <Button variant="primary" onClick={() => navigate("/")}>
-              Order More
+            <Button variant="success" onClick={() => navigate("/")}>
+              Proceed to Checkout
             </Button>
           </div>
         </div>

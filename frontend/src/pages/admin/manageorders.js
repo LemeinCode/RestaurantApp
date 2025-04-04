@@ -125,11 +125,6 @@ const ManageOrders = () => {
                       Manage Users
                     </Nav.Link>
                   </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link href="#" className="text-white" onClick={() => navigate("/sendemails")}>
-                      Email Campaigns
-                    </Nav.Link>
-                  </Nav.Item>
                 </Nav>
               </Col>
             )}
